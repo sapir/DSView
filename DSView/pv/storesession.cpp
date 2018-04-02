@@ -427,6 +427,7 @@ bool StoreSession::export_start()
 
         if(_outModule == NULL) {
             _error = tr("Invalid export format.");
+            return false;
         } else {
             _thread = boost::thread(&StoreSession::export_proc, this, snapshot);
             return !_has_error;
