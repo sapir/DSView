@@ -59,7 +59,17 @@ using std::vector;
 namespace pv {
 
 StoreSession::StoreSession(SigSession &session) :
-	_session(session),
+    _session(session),
+    _outModule(NULL),
+    _units_stored(0),
+    _unit_count(0),
+    _has_error(false)
+{
+}
+
+StoreSession::StoreSession(SigSession &session, QString &file_name) :
+	_file_name(file_name),
+    _session(session),
     _outModule(NULL),
 	_units_stored(0),
     _unit_count(0),
@@ -396,15 +406,20 @@ bool StoreSession::export_start()
     QSettings settings;
 
     // Show the dialog
-    QList<QString> supportedFormats = getSuportedExportFormats();
     QString filter;
-    for(int i = 0; i < supportedFormats.count();i++){
-        filter.append(supportedFormats[i]);
-        if(i < supportedFormats.count() - 1)
-            filter.append(";;");
+    if (_file_name.isEmpty()) {
+        QList<QString> supportedFormats = getSuportedExportFormats();
+        for(int i = 0; i < supportedFormats.count();i++){
+            filter.append(supportedFormats[i]);
+            if(i < supportedFormats.count() - 1)
+                filter.append(";;");
+        }
+        _file_name = QFileDialog::getSaveFileName(
+                    NULL, tr("Export Data"), settings.value(DIR_KEY).toString(),filter,&filter);
+    } else {
+        filter = "Comma-separated values (*.csv)";
     }
-    _file_name = QFileDialog::getSaveFileName(
-                NULL, tr("Export Data"), settings.value(DIR_KEY).toString(),filter,&filter);
+
     if (!_file_name.isEmpty()) {
         QFileInfo f(_file_name);
         QStringList list = filter.split('.').last().split(')');

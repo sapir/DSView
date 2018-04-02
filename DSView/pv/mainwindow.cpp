@@ -96,7 +96,8 @@ MainWindow::MainWindow(DeviceManager &device_manager,
 	QWidget *parent) :
     QMainWindow(parent),
     _device_manager(device_manager),
-    _session(device_manager)
+    _session(device_manager),
+    _num_auto_export(0)
 {
 	setup_ui();
 	if (open_file_name) {
@@ -249,6 +250,9 @@ void MainWindow::setup_ui()
             SLOT(reCalc()));
     connect(&_session, SIGNAL(repeat_resume()), this,
             SLOT(repeat_resume()));
+
+    connect(&_session, SIGNAL(frame_ended()), this,
+            SLOT(autoexport()));
 
     connect(_view, SIGNAL(cursor_update()), _measure_widget,
             SLOT(cursor_update()));
@@ -691,6 +695,20 @@ void MainWindow::on_export()
     using pv::dialogs::StoreProgress;
     StoreProgress *dlg = new StoreProgress(_session, this);
     dlg->export_run();
+}
+
+void MainWindow::autoexport()
+{
+    QString fileName;
+    fileName.sprintf("/tmp/dsview/%d.csv", _num_auto_export);
+    ++_num_auto_export;
+
+    StoreSession store_session(_session, fileName);
+    qDebug("autoexport to %s", qPrintable(fileName));
+    if (!store_session.export_start()) {
+        qDebug("error starting auto export: %s",
+            qPrintable(store_session.error()));
+    }
 }
 
 bool MainWindow::load_session(QString name)

@@ -53,6 +53,7 @@ private:
 
 public:
     StoreSession(SigSession &session);
+    StoreSession(SigSession &session, QString &file_name);
 
 	~StoreSession();
 

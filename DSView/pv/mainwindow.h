@@ -143,6 +143,9 @@ private slots:
      * errors
      */
     void show_error();
+
+    void autoexport();
+
 signals:
     void prgRate(int progress);
 
@@ -188,6 +191,8 @@ private:
     dock::MeasureDock *_measure_widget;
     QDockWidget *_search_dock;
     dock::SearchDock * _search_widget;
+
+    int _num_auto_export;
 };
 
 } // namespace pv
